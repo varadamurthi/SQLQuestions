@@ -1,0 +1,48 @@
+ROW_NUMBER,
+RANK,
+DENSERANK,
+LEAD,
+LAG
+
+SELECT * FROM product_groups;
+SELECT * FROM products;
+
+-- MAX() AS AGGREGATE FUNCTION
+SELECT group_name, MAX(price) FROM products INNER JOIN product_groups USING (group_id) group by group_name;
+
+-- MAX() AS WINDOW FUNCTION
+SELECT *,MAX(price) OVER(PARTITION BY group_id) AS max_price FROM products;
+
+-- ROW_NUMBER
+SELECT * FROM(
+    SELECT *, ROW_NUMBER() OVER(PARTITION BY group_id) AS RN FROM products) x
+    where x.rn <= 3
+-- RANK()    
+SELECT *,RANK() OVER(PARTITION BY group_id order by price DESC) as RNK FROM products INNER JOIN product_groups using (group_id);
+
+-- DENSE_RANK()
+SELECT *, DENSE_RANK() OVER(PARTITION BY group_id order by price DESC) as RNK FROM products INNER JOIN product_groups using (group_id);
+
+--LEAD()
+
+SELECT * FROM (SELECT *, LAG(price,1,5) OVER(PARTITION BY group_id) AS prev_price FROM products) x where x.prev_price is null;
+
+
+SELECT *, NTILE(4) OVER(partition by group_id order by price desc) as grp from products order by grp;
+
+
+
+
+DEFAULT FRAME CLAUSE:
+range between unbounded preceeding and current row
+
+MODIFIED FRAME CLAUSE:
+range between unbounded preceeding and unbounded following
+
+
+TO CONTINUE WINDOW FUNCTIONS:
+https://www.youtube.com/watch?v=zAmJPdZu8Rg
+
+
+interview questions:
+https://techtfq.com/blog/top-20-sql-interview-questions
